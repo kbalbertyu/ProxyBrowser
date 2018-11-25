@@ -2,6 +2,7 @@ package com.amzass.service.common;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.TypeReference;
 import com.amzass.proxy.model.ProxyResource;
 import com.amzass.utils.PageLoadHelper.WaitTime;
 import com.amzass.utils.common.Exceptions.BusinessException;
@@ -30,9 +31,13 @@ class ProxyManager {
     private final static String FETCH_PROXY_PATH = "/proxy/fetch";
     private final static String DISABLE_PROXY_PATH = "/proxy/disable";
     private final static String VERIFY_PROXY_PATH = "/proxy/verify-proxy";
+    private static String localIP = null;
 
     WebDriver startProxyDriver(String profile) {
         while (true) {
+            if (StringUtils.isBlank(localIP)) {
+                localIP = this.fetchLocalIP();
+            }
             ProxyResource proxyResource = this.fetchProxyResource(profile);
             if (proxyResource == null) {
                 throw new BusinessException(String.format("No available proxy for profile: %s", profile));
@@ -54,6 +59,19 @@ class ProxyManager {
             }
             proxyWebDriverManager.closeDriver(driver);
         }
+    }
+
+    private String fetchLocalIP() {
+        WebApiResult result = webApiRequest.get(VERIFY_PROXY_PATH + "?proxyHost=127.0.0.1");
+        if (result == null) {
+            return null;
+        }
+        return parseLocalIP(result);
+    }
+
+    private String parseLocalIP(WebApiResult result) {
+        Map<String, String> data = JSON.parseObject(result.getData(), new TypeReference<Map<String, String>>() {});
+        return data.get("ip");
     }
 
     private ProxyResource fetchProxyResource(String profile) {
@@ -82,7 +100,12 @@ class ProxyManager {
         driver.get(url);
         WaitTime.Normal.execute();
         Document doc = Jsoup.parse(driver.getPageSource());
-        JSON.parseObject(StringUtils.trim(doc.body().text()), WebApiResult.class);
+        WebApiResult result = JSON.parseObject(StringUtils.trim(doc.body().text()), WebApiResult.class);
+
+        String ip = parseLocalIP(result);
+        if (StringUtils.equals(ip, localIP)) {
+            throw new ProxyException();
+        }
     }
 
     private static class ProxyException extends RuntimeException {

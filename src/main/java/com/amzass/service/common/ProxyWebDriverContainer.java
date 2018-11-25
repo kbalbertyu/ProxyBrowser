@@ -1,7 +1,6 @@
 package com.amzass.service.common;
 
 import com.amzass.enums.common.ConfigEnums;
-import com.amzass.utils.common.ProcessCleaner;
 import com.google.inject.Inject;
 import com.mailman.model.common.Settings;
 import com.mailman.service.common.AbstractWebDriverContainer;
@@ -15,6 +14,7 @@ import java.util.Map;
  */
 public class ProxyWebDriverContainer extends AbstractWebDriverContainer {
     @Inject private ProxyManager proxyManager;
+    @Inject private ProxyWebDriverManager proxyWebDriverManager;
     final Map<String, WebDriver> drivers = new HashMap<>();
 
     @Override
@@ -22,25 +22,28 @@ public class ProxyWebDriverContainer extends AbstractWebDriverContainer {
         return null;
     }
 
-    public WebDriver getWebDriver(String id) {
+    public WebDriver startWebDriver(String id) {
         String key = id.toLowerCase();
         WebDriver driver = drivers.get(key);
         if (driver == null) {
             driver = this.createDriver(id);
         }
+        this.markUser();
         return driver;
-    }
-
-    /**
-     * 终止容器中的所有WebDriver的进程
-     */
-    void terminateWebDrivers() {
-        ProcessCleaner.cleanWebDriver();
     }
 
     private WebDriver createDriver(String id) {
         WebDriver driver = proxyManager.startProxyDriver(id);
         drivers.put(id.toLowerCase(), driver);
         return driver;
+    }
+
+    public void stopWebDriver(String id) {
+        String key = id.toLowerCase();
+        WebDriver driver = drivers.get(key);
+        if (driver != null) {
+            proxyWebDriverManager.closeDriver(driver);
+            drivers.remove(key);
+        }
     }
 }

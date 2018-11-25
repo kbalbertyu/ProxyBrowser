@@ -15,6 +15,7 @@ public class ProxyBrowser {
 
     public static void main(String[] args) {
         UIBrowser uiBrowser = ApplicationContext.getBean(UIBrowser.class);
+        uiBrowser.init();
         uiBrowser.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 uiBrowser.cleanUp();
