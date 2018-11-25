@@ -7,10 +7,10 @@
         <version>1.2</version>
     </parent>
 
-    <artifactId>watchdog</artifactId>
+    <artifactId>proxyBrowser</artifactId>
     <version>1.0</version>
-    <name>WatchDog</name>
-    <description>KBER Version of Wallace and Gromit</description>
+    <name>ProxyBrowser</name>
+    <description>KBER Version of Chrome Browser with dynamic proxy IP</description>
 
     <properties>
         <java.language.level>1.8</java.language.level>
