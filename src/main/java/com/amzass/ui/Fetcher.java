@@ -6,6 +6,7 @@ import com.amzass.service.common.ApplicationContext;
 import com.amzass.service.common.WebDriverManager;
 import com.amzass.utils.PageLoadHelper.WaitTime;
 import com.google.inject.Inject;
+import com.mailman.model.common.WebApiResult;
 import com.mailman.service.common.WebApiRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -35,7 +36,16 @@ public class Fetcher {
             WaitTime.Normal.execute();
             Document doc = Jsoup.parse(driver.getPageSource());
             List<ProxyResource> proxyResources = this.parseProxyList(doc);
-            webApiRequest.post(IMPORT_PROXY_PATH, JSON.toJSONString(proxyResources));
+            int count = proxyResources.size();
+            LOGGER.info("Found {} proxy IP resources.", count);
+            if (count > 0) {
+                WebApiResult result = webApiRequest.post(IMPORT_PROXY_PATH, JSON.toJSONString(proxyResources));
+                if (result == null) {
+                    LOGGER.error("Proxy resources import failed");
+                } else {
+                    LOGGER.info("Proxy resources import success: {}", JSON.toJSONString(result));
+                }
+            }
         } catch (Exception e) {
             LOGGER.error("Error found on fetching proxy resources.");
         } finally {
@@ -63,5 +73,6 @@ public class Fetcher {
 
     public static void main(String[] args) {
         ApplicationContext.getBean(Fetcher.class).execute();
+        System.exit(0);
     }
 }
