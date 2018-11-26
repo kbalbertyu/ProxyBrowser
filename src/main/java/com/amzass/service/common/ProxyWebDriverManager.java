@@ -53,7 +53,8 @@ class ProxyWebDriverManager extends WebDriverManager {
         String proxyIpAndPort = proxyResource.getHost() + ":" + proxyResource.getPort();
         if (proxyResource.http()) {
             proxy.setHttpProxy(proxyIpAndPort);
-        } else {
+        }
+        if (proxyResource.https()) {
             proxy.setSslProxy(proxyIpAndPort);
         }
         return proxy;

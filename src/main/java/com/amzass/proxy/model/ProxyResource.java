@@ -1,9 +1,14 @@
 package com.amzass.proxy.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.amzass.utils.common.RegexUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.Date;
+
+import static com.amzass.proxy.resource.AbstractResource.NONE_EXIST_VALUE;
 
 /**
  * @author <a href="mailto:kbalbertyu@gmail.com">Albert Yu</a> 11/23/2018 3:10 AM
@@ -14,13 +19,17 @@ public class ProxyResource {
     private String host;
     private String port;
     private String profile;
+    @JSONField(serialize = false)
+    private Date date;
 
     public boolean http() {
-        return StringUtils.equalsIgnoreCase(scheme, "http");
+        return StringUtils.equalsIgnoreCase(scheme, "http") ||
+            StringUtils.equalsIgnoreCase(scheme, NONE_EXIST_VALUE);
     }
 
-    private boolean https() {
-        return StringUtils.equalsIgnoreCase(scheme, "https");
+    public boolean https() {
+        return StringUtils.equalsIgnoreCase(scheme, "https") ||
+            StringUtils.equalsIgnoreCase(scheme, NONE_EXIST_VALUE);
     }
 
     private boolean portValid() {

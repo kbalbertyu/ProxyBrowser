@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.TypeReference;
 import com.amzass.proxy.model.ProxyResource;
+import com.amzass.ui.utils.UITools;
 import com.amzass.utils.PageLoadHelper.WaitTime;
 import com.amzass.utils.common.Exceptions.BusinessException;
 import com.amzass.utils.common.Tools;
@@ -40,7 +41,9 @@ class ProxyManager {
             }
             ProxyResource proxyResource = this.fetchProxyResource(profile);
             if (proxyResource == null) {
-                throw new BusinessException(String.format("No available proxy for profile: %s", profile));
+                String message = String.format("No available proxy for profile: %s", profile);
+                UITools.error(message);
+                throw new BusinessException(message);
             }
             WebDriver driver;
             try {
