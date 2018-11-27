@@ -1,9 +1,11 @@
 package com.amzass.service.common;
 
 import com.amzass.enums.common.ConfigEnums;
+import com.amzass.ui.utils.UITools;
 import com.google.inject.Inject;
 import com.mailman.model.common.Settings;
 import com.mailman.service.common.AbstractWebDriverContainer;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 
 import java.util.HashMap;
@@ -45,5 +47,15 @@ public class ProxyWebDriverContainer extends AbstractWebDriverContainer {
             proxyWebDriverManager.closeDriver(driver);
             drivers.remove(key);
         }
+    }
+
+    public void highlightWebDriver(String id) {
+        String key = id.toLowerCase();
+        WebDriver driver = drivers.get(key);
+        if (driver != null) {
+            ((JavascriptExecutor) driver).executeScript("alert(\"" + id + "\")");
+            return;
+        }
+        UITools.error(String.format("Unable to find the browser associated with: %s", id));
     }
 }
